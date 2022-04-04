@@ -5,6 +5,12 @@ GXVertexAttributeFormat::GXVertexAttributeFormat() : Attribute(EGXAttribute::Nul
 
 }
 
+GXVertex::GXVertex() {
+	for (uint32_t i = 0; i < (uint32_t)EGXAttribute::Attribute_Max; i++) {
+		AttributeIndices[i] = UINT16_MAX;
+	}
+}
+
 uint16_t GXVertex::GetIndex(EGXAttribute attribute) {
 	uint32_t attrAsInt = (uint32_t)attribute;
 

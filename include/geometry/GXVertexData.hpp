@@ -21,7 +21,7 @@ struct GXAttributeData {
 	bool HasTexCoords(uint32_t index) { return index >= 0 && index < 8 && TexCoords[index].size() != 0; }
 };
 
-// Represents the format that a per-vertex attribute is stored in.
+// Represents the format that a per-vertex attribute's data is stored in.
 struct GXVertexAttributeFormat {
 	EGXAttribute Attribute;
 	EGXComponentCount ComponentCount;
@@ -32,9 +32,11 @@ struct GXVertexAttributeFormat {
 
 // Represents a vertex found inside a primitive.
 class GXVertex {
-	uint16_t AttributeIndices[(uint32_t)EGXAttribute::Attribute_Max]{};
+	uint16_t AttributeIndices[(uint32_t)EGXAttribute::Attribute_Max];
 
 public:
+	GXVertex();
+
 	uint16_t GetIndex(EGXAttribute attribute);
 	void SetIndex(EGXAttribute attribute, uint16_t value);
 
