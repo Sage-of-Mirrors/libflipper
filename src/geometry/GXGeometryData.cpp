@@ -113,7 +113,7 @@ ModernVertex GXVertexToModern(const GXAttributeData& Attributes, const std::vect
     return NewVertex;
 }
 
-void GXGeometry::ModernizeGeometry(GXAttributeData& AttributeData) {
+void GXGeometry::ModernizeGeometry(const GXAttributeData& AttributeData) {
     std::vector<GXVertex> UniqueGXVertices;
     ptrdiff_t Index = -1;
 

@@ -102,5 +102,5 @@ public:
     const std::vector<ModernVertex>& GetModelVertices() const { return mModelVertices; }
 
     // Processes the loaded geometry to be easier for modern GPUs to render.
-    void ModernizeGeometry(GXAttributeData& AttributeData);
+    void ModernizeGeometry(const GXAttributeData& AttributeData);
 };
