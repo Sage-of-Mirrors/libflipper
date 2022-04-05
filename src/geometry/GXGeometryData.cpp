@@ -55,3 +55,8 @@ void GXPrimitive::TriangulateTriangleFan() {
 
 	mVertices = std::move(Triangles);
 }
+
+void GXShape::GetVertexOffsetAndCount(uint32_t& offset, uint32_t& count) {
+	offset = mFirstVertexOffset;
+	count = mVertexCount;
+}
