@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <vector>
 
+class GXGeometry;
+
 // Represents a single primitive made up of a list of vertices.
 class GXPrimitive {
 	// What kind of shape the vertices in this primitive make - triangles, quads, etc.
@@ -38,6 +40,8 @@ public:
 // Represents a set of primitives sharing the same Vertex Attribute Table setup,
 // i.e. a set of primitives with the same attributes enabled.
 class GXShape {
+	friend GXGeometry;
+
 	// A list that indicates which attributes are enabled for the primitives in this shape.
 	std::vector<EGXAttribute> mVertexAttributeTable;
 	// The primitives that make up this shape.
@@ -76,20 +80,27 @@ public:
 class GXGeometry {
 	// The geometry data that makes up this model.
 	std::vector<GXShape> mShapes;
+
 	// All the vertex indices in the model, collated for one-and-done uploading to the GPU.
 	std::vector<uint16_t> mModelIndices;
+	// All the vertex data in the model, sorted by the model's indices.
+	std::vector<ModernVertex> mModelVertices;
 
 public:
 	// Returns a reference to the list of shapes in this model.
 	std::vector<GXShape>& GetShapes() { return mShapes; }
 	// Returns a reference to the list of all vertex indices in this model.
 	std::vector<uint16_t>& GetModelIndices() { return mModelIndices; }
+	// Returns a reference to the list of all vertices in this model.
+	std::vector<ModernVertex>& GetModelVertices() { return mModelVertices; }
 
 	// Returns a const reference to the list of shapes in this model.
 	const std::vector<GXShape>& GetShapes() const { return mShapes; }
 	// Returns a const reference to the list of all vertex indices in this model.
 	const std::vector<uint16_t>& GetModelIndices() const { return mModelIndices; }
+	// Returns a const reference to the list of all vertices in this model.
+	const std::vector<ModernVertex>& GetModelVertices() const { return mModelVertices; }
 
 	// Processes the loaded geometry to be easier for modern GPUs to render.
-	void ModernizeGeometry();
+	void ModernizeGeometry(GXAttributeData& AttributeData);
 };

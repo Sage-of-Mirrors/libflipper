@@ -58,3 +58,91 @@ void GXShape::GetVertexOffsetAndCount(uint32_t& offset, uint32_t& count) {
 	offset = mFirstVertexOffset;
 	count = mVertexCount;
 }
+
+ptrdiff_t VectorIndexOf(const std::vector<GXVertex>& vec, const GXVertex& elem)
+{
+	ptrdiff_t result = -1;
+
+	auto it = std::find(vec.begin(), vec.end(), elem);
+	if (it != vec.end())
+		result = it - vec.begin();
+
+	return result;
+}
+
+bool VectorContains(const std::vector<GXVertex>& vec, const GXVertex& elem, ptrdiff_t& index)
+{
+	index = VectorIndexOf(vec, elem);
+	return index != -1;
+}
+
+ModernVertex GXVertexToModern(const GXAttributeData& Attributes, const std::vector<EGXAttribute>& vat, const GXVertex& Vertex) {
+	ModernVertex NewVertex;
+
+	for (EGXAttribute Attribute : vat) {
+		switch (Attribute) {
+			case EGXAttribute::Position:
+				NewVertex.Position = Attributes.GetPositions()[Vertex.GetIndex(Attribute)];
+				break;
+			case EGXAttribute::Normal:
+				NewVertex.Normal = Attributes.GetNormals()[Vertex.GetIndex(Attribute)];
+				break;
+			case EGXAttribute::Color0:
+			case EGXAttribute::Color1:
+			{
+				uint32_t index = (uint32_t)Attribute - (uint32_t)EGXAttribute::Color0;
+				NewVertex.Colors[index] = Attributes.GetColors(index)[Vertex.GetIndex(Attribute)];
+				break;
+			}
+			case EGXAttribute::TexCoord0:
+			case EGXAttribute::TexCoord1:
+			case EGXAttribute::TexCoord2:
+			case EGXAttribute::TexCoord3:
+			case EGXAttribute::TexCoord4:
+			case EGXAttribute::TexCoord5:
+			case EGXAttribute::TexCoord6:
+			case EGXAttribute::TexCoord7:
+			{
+				uint32_t index = (uint32_t)Attribute - (uint32_t)EGXAttribute::TexCoord0;
+				NewVertex.TexCoords[index] = Attributes.GetTexCoords(index)[Vertex.GetIndex(Attribute)];
+				break;
+			}
+		}
+	}
+
+	return NewVertex;
+}
+
+void GXGeometry::ModernizeGeometry(GXAttributeData& AttributeData) {
+	std::vector<GXVertex> UniqueGXVertices;
+	ptrdiff_t Index = -1;
+
+	// For each shape...
+	for (GXShape& Shape : mShapes) {
+		std::vector<GXPrimitive>& Primitives = Shape.GetPrimitives();
+		std::vector<EGXAttribute> AttributeTable = Shape.GetAttributeTable();
+
+		Shape.mFirstVertexOffset = mModelIndices.size();
+
+		// ...iterate the primitive data...
+		for (GXPrimitive& Prim : Primitives) {
+			Prim.TriangluatePrimitive();
+			std::vector<GXVertex>& Vertices = Prim.GetVertices();
+
+			// ...and process each vertex into a
+			// ModernVertex (containing the actual vertex data) and an index.
+			for (GXVertex& Vertex : Vertices) {
+				if (!VectorContains(UniqueGXVertices, Vertex, Index)) {
+					Index = UniqueGXVertices.size();
+					UniqueGXVertices.push_back(Vertex);
+
+					mModelVertices.push_back(GXVertexToModern(AttributeData, AttributeTable, Vertex));
+				}
+
+				mModelIndices.push_back(Index);
+			}
+		}
+
+		Shape.mVertexCount = mModelIndices.size() - Shape.mFirstVertexOffset;
+	}
+}
