@@ -2,8 +2,6 @@
 
 #include <utility>
 
-GXPrimitive::GXPrimitive() : mType(EGXPrimitiveType::None) {}
-
 void GXPrimitive::TriangluatePrimitive() {
 	switch (mType) {
 		case EGXPrimitiveType::TriangleStrips:

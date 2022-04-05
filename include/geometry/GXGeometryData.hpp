@@ -13,11 +13,13 @@ class GXPrimitive {
 	// The vertices making up this primitive.
 	std::vector<GXVertex> mVertices;
 
+	// Converts this primitive from triangle strip to triangles.
 	void TriangulateTriangleStrip();
+	// Converts this primitive from triangl fan to triangles.
 	void TriangulateTriangleFan();
 
 public:
-	GXPrimitive();
+	GXPrimitive() : mType(EGXPrimitiveType::None) {}
 
 	// Returns this primitive's type.
 	EGXPrimitiveType GetType() const { return mType; }
@@ -47,7 +49,7 @@ class GXShape {
 	void* mUserData;
 
 public:
-	GXShape() : mUserData(nullptr) {}
+	GXShape() : mFirstVertexOffset(0), mVertexCount(0), mUserData(nullptr) {}
 
 	// Returns a reference to this shape's list of enabled attributes.
 	std::vector<EGXAttribute>& GetAttributeTable() { return mVertexAttributeTable; }
