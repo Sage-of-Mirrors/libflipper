@@ -122,7 +122,7 @@ void GXGeometry::ModernizeGeometry(const GXAttributeData& AttributeData) {
         std::vector<GXPrimitive>& Primitives = Shape.GetPrimitives();
         std::vector<EGXAttribute> AttributeTable = Shape.GetAttributeTable();
 
-        Shape.mFirstVertexOffset = mModelIndices.size();
+        Shape.mFirstVertexOffset = static_cast<uint32_t>(mModelIndices.size());
 
         // ...iterate the primitive data...
         for (GXPrimitive& Prim : Primitives) {
@@ -139,10 +139,10 @@ void GXGeometry::ModernizeGeometry(const GXAttributeData& AttributeData) {
                     mModelVertices.push_back(GXVertexToModern(AttributeData, AttributeTable, Vertex));
                 }
 
-                mModelIndices.push_back(Index);
+                mModelIndices.push_back(static_cast<uint16_t>(Index));
             }
         }
 
-        Shape.mVertexCount = mModelIndices.size() - Shape.mFirstVertexOffset;
+        Shape.mVertexCount = static_cast<uint32_t>(mModelIndices.size()) - Shape.mFirstVertexOffset;
     }
 }

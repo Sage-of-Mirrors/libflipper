@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <stdexcept>
 
 // Represents a model's per-vertex attribute data (position, normals, etc).
 class GXAttributeData {
@@ -25,18 +26,38 @@ public:
     // Returns a reference to the model's list of normal data.
     std::vector<glm::vec3>& GetNormals() { return mNormals; }
     // Returns a reference to the model's list of color data for the given channel.
-    std::vector<glm::vec4>& GetColors(uint32_t index) { if (index >= 0 && index < 2) return mColors[index]; }
+    std::vector<glm::vec4>& GetColors(uint32_t index) {
+        if (index >= 0 && index < 2)
+            return mColors[index];
+        else
+            throw std::out_of_range("Specified invalid vertex color ID! (range is 0 to 1)");
+    }
     // Returns a reference to the model's list of tex coord data for the given channel.
-    std::vector<glm::vec3>& GetTexCoords(uint32_t index) { if (index >= 0 && index < 8) return mTexCoords[index]; }
+    std::vector<glm::vec3>& GetTexCoords(uint32_t index) {
+        if (index >= 0 && index < 8)
+            return mTexCoords[index];
+        else
+            throw std::out_of_range("Specified invalid vertex tex coord ID! (range is 0 to 7)");
+    }
 
     // Returns a const reference to the model's list of position data.
     const std::vector<glm::vec4>& GetPositions() const { return mPositions; }
     // Returns a const reference to the model's list of normal data.
     const std::vector<glm::vec3>& GetNormals() const { return mNormals; }
     // Returns a const reference to the model's list of color data for the given channel.
-    const std::vector<glm::vec4>& GetColors(uint32_t index) const { if (index >= 0 && index < 2) return mColors[index]; }
+    const std::vector<glm::vec4>& GetColors(uint32_t index) const {
+        if (index >= 0 && index < 2)
+            return mColors[index];
+        else
+            throw std::out_of_range("Specified invalid vertex color ID! (range is 0 to 1)");
+    }
     // Returns a const reference to the model's list of tex coord data for the given channel.
-    const std::vector<glm::vec3>& GetTexCoords(uint32_t index) const { if (index >= 0 && index < 8) return mTexCoords[index]; }
+    const std::vector<glm::vec3>& GetTexCoords(uint32_t index) const {
+        if (index >= 0 && index < 8)
+            return mTexCoords[index];
+        else
+            throw std::out_of_range("Specified invalid vertex tex coord ID! (range is 0 to 7)");
+    }
 
     // Returns whether this model has position data.
     bool HasPositions() { return mPositions.size() != 0; }
