@@ -54,7 +54,7 @@ void GXPrimitive::TriangulateTriangleFan() {
     mVertices = std::move(Triangles);
 }
 
-void GXShape::GetVertexOffsetAndCount(uint32_t& offset, uint32_t& count) {
+void GXShape::GetVertexOffsetAndCount(uint32_t& offset, uint32_t& count) const {
     offset = mFirstVertexOffset;
     count = mVertexCount;
 }
@@ -79,10 +79,16 @@ bool VectorContains(const std::vector<GXVertex>& vec, const GXVertex& elem, ptrd
 ModernVertex GXVertexToModern(const GXAttributeData& Attributes, const std::vector<EGXAttribute>& vat, const GXVertex& Vertex) {
     ModernVertex NewVertex;
 
+    uint32_t PosMatIndex = 0;
+
     for (EGXAttribute Attribute : vat) {
         switch (Attribute) {
+            case EGXAttribute::PositionMatrixIdx:
+                PosMatIndex = Attributes.GetPositionMatrixIndices()[Vertex.GetIndex(Attribute)];
+                break;
             case EGXAttribute::Position:
                 NewVertex.Position = Attributes.GetPositions()[Vertex.GetIndex(Attribute)];
+                NewVertex.Position.w = PosMatIndex;
                 break;
             case EGXAttribute::Normal:
                 NewVertex.Normal = Attributes.GetNormals()[Vertex.GetIndex(Attribute)];
@@ -118,16 +124,16 @@ void GXGeometry::ModernizeGeometry(const GXAttributeData& AttributeData) {
     ptrdiff_t Index = -1;
 
     // For each shape...
-    for (GXShape& Shape : mShapes) {
-        std::vector<GXPrimitive>& Primitives = Shape.GetPrimitives();
-        std::vector<EGXAttribute> AttributeTable = Shape.GetAttributeTable();
+    for (GXShape* Shape : mShapes) {
+        std::vector<GXPrimitive*>& Primitives = Shape->GetPrimitives();
+        std::vector<EGXAttribute> AttributeTable = Shape->GetAttributeTable();
 
-        Shape.mFirstVertexOffset = static_cast<uint32_t>(mModelIndices.size());
+        Shape->mFirstVertexOffset = static_cast<uint32_t>(mModelIndices.size());
 
         // ...iterate the primitive data...
-        for (GXPrimitive& Prim : Primitives) {
-            Prim.TriangluatePrimitive();
-            std::vector<GXVertex>& Vertices = Prim.GetVertices();
+        for (GXPrimitive* Prim : Primitives) {
+            Prim->TriangluatePrimitive();
+            std::vector<GXVertex>& Vertices = Prim->GetVertices();
 
             // ...and process each vertex into a
             // ModernVertex (containing the actual vertex data) and an index.
@@ -143,6 +149,6 @@ void GXGeometry::ModernizeGeometry(const GXAttributeData& AttributeData) {
             }
         }
 
-        Shape.mVertexCount = static_cast<uint32_t>(mModelIndices.size()) - Shape.mFirstVertexOffset;
+        Shape->mVertexCount = static_cast<uint32_t>(mModelIndices.size()) - Shape->mFirstVertexOffset;
     }
 }

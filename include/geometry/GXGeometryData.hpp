@@ -22,6 +22,7 @@ class GXPrimitive {
 
 public:
     GXPrimitive() : mType(EGXPrimitiveType::None) {}
+    GXPrimitive(const EGXPrimitiveType& type) { mType = type; }
 
     // Returns this primitive's type.
     EGXPrimitiveType GetType() const { return mType; }
@@ -45,7 +46,7 @@ class GXShape {
     // A list that indicates which attributes are enabled for the primitives in this shape.
     std::vector<EGXAttribute> mVertexAttributeTable;
     // The primitives that make up this shape.
-    std::vector<GXPrimitive> mPrimitives;
+    std::vector<GXPrimitive*> mPrimitives;
 
     // The offset of this shape's first vertex index in the model index list.
     uint32_t mFirstVertexOffset;
@@ -61,25 +62,29 @@ public:
     // Returns a reference to this shape's list of enabled attributes.
     std::vector<EGXAttribute>& GetAttributeTable() { return mVertexAttributeTable; }
     // Returns a reference to this shape's list of primitives.
-    std::vector<GXPrimitive>& GetPrimitives() { return mPrimitives; }
+    std::vector<GXPrimitive*>& GetPrimitives() { return mPrimitives; }
     
     // Returns a const reference to this shape's list of enabled attributes.
     const std::vector<EGXAttribute>& GetAttributeTable() const { return mVertexAttributeTable; }
     // Returns a const reference to this shape's list of primitives.
-    const std::vector<GXPrimitive>& GetPrimitives() const { return mPrimitives; }
+    const std::vector<GXPrimitive*>& GetPrimitives() const { return mPrimitives; }
 
     // Fills the input references with the offset of this shape's first index in the global index list
     // and the number of indices belonging to it.
-    void GetVertexOffsetAndCount(uint32_t& offset, uint32_t& count);
+    void GetVertexOffsetAndCount(uint32_t& offset, uint32_t& count) const;
 
-    void* GetUserData() { return mUserData; }
+    void* GetUserData() const { return mUserData; }
+
+    template<typename T>
+    T* GetUserData() const { return static_cast<T*>(mUserData); }
+
     void SetUserData(void* data) { mUserData = data; }
 };
 
 // Represents all of the geometry for a given model.
 class GXGeometry {
     // The geometry data that makes up this model.
-    std::vector<GXShape> mShapes;
+    std::vector<GXShape*> mShapes;
 
     // All the vertex indices in the model, collated for one-and-done uploading to the GPU.
     std::vector<uint16_t> mModelIndices;
@@ -88,14 +93,14 @@ class GXGeometry {
 
 public:
     // Returns a reference to the list of shapes in this model.
-    std::vector<GXShape>& GetShapes() { return mShapes; }
+    std::vector<GXShape*>& GetShapes() { return mShapes; }
     // Returns a reference to the list of all vertex indices in this model.
     std::vector<uint16_t>& GetModelIndices() { return mModelIndices; }
     // Returns a reference to the list of all vertices in this model.
     std::vector<ModernVertex>& GetModelVertices() { return mModelVertices; }
 
     // Returns a const reference to the list of shapes in this model.
-    const std::vector<GXShape>& GetShapes() const { return mShapes; }
+    const std::vector<GXShape*>& GetShapes() const { return mShapes; }
     // Returns a const reference to the list of all vertex indices in this model.
     const std::vector<uint16_t>& GetModelIndices() const { return mModelIndices; }
     // Returns a const reference to the list of all vertices in this model.

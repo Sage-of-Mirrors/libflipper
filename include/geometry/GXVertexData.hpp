@@ -11,6 +11,8 @@
 
 // Represents a model's per-vertex attribute data (position, normals, etc).
 class GXAttributeData {
+    // A list of all the processed position matrix index data the model uses, used for skinning on the GPU.
+    std::vector<uint32_t> mPositionMatrixIndices;
     // A list of all the positions the model uses.
     std::vector<glm::vec4> mPositions;
     // A list of all the normals the model uses.
@@ -21,6 +23,8 @@ class GXAttributeData {
     std::vector<glm::vec3> mTexCoords[8];
 
 public:
+    // Returns a reference to the model's list of position matrix index data.
+    std::vector<uint32_t>& GetPositionMatrixIndices() { return mPositionMatrixIndices; }
     // Returns a reference to the model's list of position data.
     std::vector<glm::vec4>& GetPositions() { return mPositions; }
     // Returns a reference to the model's list of normal data.
@@ -40,6 +44,8 @@ public:
             throw std::out_of_range("Specified invalid vertex tex coord ID! (range is 0 to 7)");
     }
 
+    // Returns a const reference to the model's list of position matrix index data.
+    const std::vector<uint32_t>& GetPositionMatrixIndices() const { return mPositionMatrixIndices; }
     // Returns a const reference to the model's list of position data.
     const std::vector<glm::vec4>& GetPositions() const { return mPositions; }
     // Returns a const reference to the model's list of normal data.
@@ -59,6 +65,8 @@ public:
             throw std::out_of_range("Specified invalid vertex tex coord ID! (range is 0 to 7)");
     }
 
+    // Returns whether this model has position matrix data.
+    bool HasPositionMatrixIndices() { return mPositionMatrixIndices.size() != 0; }
     // Returns whether this model has position data.
     bool HasPositions() { return mPositions.size() != 0; }
     // Returns whether this model has normal data.
@@ -77,8 +85,16 @@ struct GXVertexAttributeFormat {
     EGXComponentCount ComponentCount;
     // The underlying type of the attribute data - float, int16, etc.
     EGXComponentType ComponentType;
+    uint8_t FixedPoint;
 
-    GXVertexAttributeFormat() : Attribute(EGXAttribute::Null), ComponentCount(EGXComponentCount::Position_XY), ComponentType(EGXComponentType::Unsigned8) {}
+    GXVertexAttributeFormat() : Attribute(EGXAttribute::Null), ComponentCount(EGXComponentCount::Position_XY), ComponentType(EGXComponentType::Unsigned8), FixedPoint(0) {}
+    
+    GXVertexAttributeFormat(const EGXAttribute attribute, const EGXComponentCount componentCount, const EGXComponentType componentType, const uint8_t fixedPoint) {
+        Attribute = attribute;
+        ComponentCount = componentCount;
+        ComponentType = componentType;
+        FixedPoint = fixedPoint;
+    }
 };
 
 // Represents a vertex found inside a primitive.
