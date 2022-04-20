@@ -83,12 +83,9 @@ ModernVertex GXVertexToModern(const GXAttributeData& Attributes, const std::vect
 
     for (EGXAttribute Attribute : vat) {
         switch (Attribute) {
-            case EGXAttribute::PositionMatrixIdx:
-                PosMatIndex = Attributes.GetPositionMatrixIndices()[Vertex.GetIndex(Attribute)];
-                break;
             case EGXAttribute::Position:
                 NewVertex.Position = Attributes.GetPositions()[Vertex.GetIndex(Attribute)];
-                NewVertex.Position.w = PosMatIndex;
+                NewVertex.Position.w = Vertex.GetIndex(EGXAttribute::PositionMatrixIdx);
                 break;
             case EGXAttribute::Normal:
                 NewVertex.Normal = Attributes.GetNormals()[Vertex.GetIndex(Attribute)];
