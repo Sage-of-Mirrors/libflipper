@@ -1,5 +1,6 @@
 #include "geometry/GXGeometryData.hpp"
 
+#include <algorithm>
 #include <utility>
 
 void GXPrimitive::TriangluatePrimitive() {
@@ -17,14 +18,17 @@ void GXPrimitive::TriangluatePrimitive() {
 }
 
 void GXPrimitive::TriangulateTriangleStrip() {
-    std::vector<GXVertex> Triangles;
+    std::vector<ModernVertex> Triangles;
 
     for (size_t i = 2; i < mVertices.size(); i++) {
         bool isIndexOdd = i % 2 != 0;
 
-        GXVertex const& v0 = mVertices[i - 2];
-        GXVertex const& v1 = isIndexOdd ? mVertices[i] : mVertices[i - 1];
-        GXVertex const& v2 = isIndexOdd ? mVertices[i - 1] : mVertices[i];
+        ModernVertex const& v0 = mVertices[i - 2];
+        ModernVertex const& v1 = isIndexOdd ? mVertices[i] : mVertices[i - 1];
+        ModernVertex const& v2 = isIndexOdd ? mVertices[i - 1] : mVertices[i];
+
+        if (v0 == v1 || v0 == v2 || v1 == v2)
+            continue;
 
         Triangles.push_back(v0);
         Triangles.push_back(v1);
@@ -35,12 +39,12 @@ void GXPrimitive::TriangulateTriangleStrip() {
 }
 
 void GXPrimitive::TriangulateTriangleFan() {
-    std::vector<GXVertex> Triangles;
+    std::vector<ModernVertex> Triangles;
 
     for (size_t i = 1; i < mVertices.size() - 1; i++) {
-        GXVertex const& v0 = mVertices[i];
-        GXVertex const& v1 = mVertices[i + 1];
-        GXVertex const& v2 = mVertices[0];
+        ModernVertex const& v0 = mVertices[i];
+        ModernVertex const& v1 = mVertices[i + 1];
+        ModernVertex const& v2 = mVertices[0];
 
         // Reject degenerate triangles (triangles where two or more vertices are the same)
         if (v0 == v1 || v0 == v2 || v1 == v2)
@@ -116,11 +120,9 @@ ModernVertex GXVertexToModern(const GXAttributeData& Attributes, const std::vect
     return NewVertex;
 }
 
-void GXGeometry::ModernizeGeometry(const GXAttributeData& AttributeData) {
-    std::vector<GXVertex> UniqueGXVertices;
-    ptrdiff_t Index = -1;
+void GXGeometry::CreateVertexArray() {
+    size_t index = 0;
 
-    // For each shape...
     for (GXShape* Shape : mShapes) {
         std::vector<GXPrimitive*>& Primitives = Shape->GetPrimitives();
         std::vector<EGXAttribute> AttributeTable = Shape->GetAttributeTable();
@@ -130,19 +132,13 @@ void GXGeometry::ModernizeGeometry(const GXAttributeData& AttributeData) {
         // ...iterate the primitive data...
         for (GXPrimitive* Prim : Primitives) {
             Prim->TriangluatePrimitive();
-            std::vector<GXVertex>& Vertices = Prim->GetVertices();
+            std::vector<ModernVertex>& Vertices = Prim->GetVertices();
 
             // ...and process each vertex into a
             // ModernVertex (containing the actual vertex data) and an index.
-            for (GXVertex& Vertex : Vertices) {
-                if (!VectorContains(UniqueGXVertices, Vertex, Index)) {
-                    Index = UniqueGXVertices.size();
-                    UniqueGXVertices.push_back(Vertex);
-
-                    mModelVertices.push_back(GXVertexToModern(AttributeData, AttributeTable, Vertex));
-                }
-
-                mModelIndices.push_back(static_cast<uint16_t>(Index));
+            for (ModernVertex& vertex : Vertices) {
+                mModelVertices.push_back(vertex);
+                mModelIndices.push_back(static_cast<uint32_t>(index++));
             }
         }
 

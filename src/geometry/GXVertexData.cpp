@@ -49,3 +49,27 @@ bool GXVertex::operator==(const GXVertex& b) const {
 
     return true;
 }
+
+bool ModernVertex::operator==(const ModernVertex& b) const {
+    if (Position != b.Position) {
+        return false;
+    }
+
+    if (Normal != b.Normal) {
+        return false;
+    }
+
+    for (int i = 0; i < 2; i++) {
+        if (Colors[i] != b.Colors[i]) {
+            return false;
+        }
+    }
+
+    for (int i = 0; i < 8; i++) {
+        if (TexCoords[i] != b.TexCoords[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}

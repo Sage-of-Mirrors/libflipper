@@ -122,4 +122,7 @@ struct ModernVertex {
     glm::vec3 TexCoords[8];
 
     ModernVertex();
+
+    bool operator==(const ModernVertex& other) const;
+    bool operator!=(const ModernVertex& other) const { return !operator==(other); }
 };
