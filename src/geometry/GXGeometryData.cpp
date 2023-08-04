@@ -63,6 +63,32 @@ void GXShape::GetVertexOffsetAndCount(uint32_t& offset, uint32_t& count) const {
     count = mVertexCount;
 }
 
+void GXShape::CalculateCenterOfMass() {
+    size_t vertexCount = 0;
+    glm::vec3 center(0.0f, 0.0f, 0.0f);
+
+    for (const GXPrimitive* p : mPrimitives)
+    {
+        for (const ModernVertex& v : p->GetVertices())
+        {
+            center.x += v.Position.x;
+            center.y += v.Position.y;
+            center.z += v.Position.z;
+
+            vertexCount++;
+        }
+    }
+
+    if (vertexCount == 0)
+    {
+        return;
+    }
+
+    mCenterOfMass.x = center.x / vertexCount;
+    mCenterOfMass.y = center.y / vertexCount;
+    mCenterOfMass.z = center.z / vertexCount;
+}
+
 ptrdiff_t VectorIndexOf(const std::vector<GXVertex>& vec, const GXVertex& elem)
 {
     ptrdiff_t result = -1;

@@ -55,11 +55,13 @@ class GXShape {
     // The total number of vertex indices that this shape has in the model index list.
     uint32_t mVertexCount;
 
+    glm::vec3 mCenterOfMass;
+
     // Arbitrary data that can be associated with this shape.
     void* mUserData;
 
 public:
-    GXShape() : mFirstVertexOffset(0), mVertexCount(0), mUserData(nullptr) {}
+    GXShape() : mFirstVertexOffset(0), mVertexCount(0), mCenterOfMass(), mUserData(nullptr) {}
 
     // Returns a reference to this shape's list of enabled attributes.
     std::vector<EGXAttribute>& GetAttributeTable() { return mVertexAttributeTable; }
@@ -70,6 +72,8 @@ public:
     const std::vector<EGXAttribute>& GetAttributeTable() const { return mVertexAttributeTable; }
     // Returns a const reference to this shape's list of primitives.
     const std::vector<GXPrimitive*>& GetPrimitives() const { return mPrimitives; }
+
+    const glm::vec3& GetCenterOfMass() const { return mCenterOfMass; }
 
     void SetVertexOffset(uint32_t offset) { mFirstVertexOffset = offset; }
     // Fills the input references with the offset of this shape's first index in the global index list
@@ -82,6 +86,8 @@ public:
     T* GetUserData() const { return static_cast<T*>(mUserData); }
 
     void SetUserData(void* data) { mUserData = data; }
+
+    void CalculateCenterOfMass();
 };
 
 // Represents all of the geometry for a given model.
