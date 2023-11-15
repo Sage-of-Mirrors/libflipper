@@ -63,6 +63,10 @@ class GXShape {
 public:
     GXShape() : mFirstVertexOffset(0), mVertexCount(0), mCenterOfMass(), mUserData(nullptr) {}
 
+    ~GXShape() {
+        delete mUserData;
+    }
+
     // Returns a reference to this shape's list of enabled attributes.
     std::vector<EGXAttribute>& GetAttributeTable() { return mVertexAttributeTable; }
     // Returns a reference to this shape's list of primitives.
