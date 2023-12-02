@@ -57,11 +57,13 @@ class GXShape {
 
     glm::vec3 mCenterOfMass;
 
+    bool mbIsVisible;
+
     // Arbitrary data that can be associated with this shape.
     void* mUserData;
 
 public:
-    GXShape() : mFirstVertexOffset(0), mVertexCount(0), mCenterOfMass(), mUserData(nullptr) {}
+    GXShape() : mFirstVertexOffset(0), mVertexCount(0), mCenterOfMass(), mbIsVisible(true), mUserData(nullptr) {}
 
     ~GXShape() {
         delete mUserData;
@@ -83,6 +85,9 @@ public:
     // Fills the input references with the offset of this shape's first index in the global index list
     // and the number of indices belonging to it.
     void GetVertexOffsetAndCount(uint32_t& offset, uint32_t& count) const;
+
+    bool GetVisible() const { return mbIsVisible; }
+    void SetVisible(bool visible) { mbIsVisible = visible; }
 
     void* GetUserData() const { return mUserData; }
 
