@@ -149,7 +149,7 @@ ModernVertex GXVertexToModern(const GXAttributeData& Attributes, const std::vect
 void GXGeometry::CreateVertexArray() {
     size_t index = 0;
 
-    for (GXShape* Shape : mShapes) {
+    for (std::shared_ptr<GXShape> Shape : mShapes) {
         std::vector<GXPrimitive*>& Primitives = Shape->GetPrimitives();
         std::vector<EGXAttribute> AttributeTable = Shape->GetAttributeTable();
 

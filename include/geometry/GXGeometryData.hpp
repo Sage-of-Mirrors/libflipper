@@ -5,6 +5,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <memory>
 
 class GXGeometry;
 
@@ -66,6 +67,11 @@ public:
     GXShape() : mFirstVertexOffset(0), mVertexCount(0), mCenterOfMass(), mbIsVisible(true), mUserData(nullptr) {}
 
     ~GXShape() {
+        for (GXPrimitive* p : mPrimitives) {
+            delete p;
+        }
+
+        mPrimitives.clear();
         delete mUserData;
     }
 
@@ -102,7 +108,7 @@ public:
 // Represents all of the geometry for a given model.
 class GXGeometry {
     // The geometry data that makes up this model.
-    std::vector<GXShape*> mShapes;
+    std::vector<std::shared_ptr<GXShape>> mShapes;
 
     // All the vertex indices in the model, collated for one-and-done uploading to the GPU.
     std::vector<uint32_t> mModelIndices;
@@ -110,17 +116,23 @@ class GXGeometry {
     std::vector<ModernVertex> mModelVertices;
 
 public:
+    GXGeometry() { }
+
+    ~GXGeometry() {
+        mShapes.clear();
+    }
+
     uint32_t AddVertices(std::vector<ModernVertex> vertices);
 
     // Returns a reference to the list of shapes in this model.
-    std::vector<GXShape*>& GetShapes() { return mShapes; }
+    std::vector<std::shared_ptr<GXShape>>& GetShapes() { return mShapes; }
     // Returns a reference to the list of all vertex indices in this model.
     std::vector<uint32_t>& GetModelIndices() { return mModelIndices; }
     // Returns a reference to the list of all vertices in this model.
     std::vector<ModernVertex>& GetModelVertices() { return mModelVertices; }
 
     // Returns a const reference to the list of shapes in this model.
-    const std::vector<GXShape*>& GetShapes() const { return mShapes; }
+    const std::vector<std::shared_ptr<GXShape>>& GetShapes() const { return mShapes; }
     // Returns a const reference to the list of all vertex indices in this model.
     const std::vector<uint32_t>& GetModelIndices() const { return mModelIndices; }
     // Returns a const reference to the list of all vertices in this model.
